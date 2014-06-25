@@ -15,28 +15,29 @@ case) of the named chunk or segment, with segment names in []'s following their
 description. For example, `chT` indicates an offset equal to the offset before
 the beginning of the `audio_container` contents (skipping `0xc` bytes for the
 chunk header), plus the similar offset for the `audio_header` chunk, plus the
-named size "size of track headers".
+named size "size of track headers". All numeric values above are given in
+hexadecimal.
 
 A chunk header looks like:
 
-...
+```
     uint32 chunk_type
     uint32 chunk_size
     uint32 chunk_version // 0x1c020065 for DotD
-...
+```
 
 Relevant chunk types are:
 
-...
+```
     0x0000080d audio_container
     0x0000080e audio_header
     0x0000080f audio_data
-...
+```
 
 The information following the first stream name (relative offset `ChN + 0x0`)
 has the structure:
 
-...
+```
     [track_count] {
         uint32 unknown (identifier?)
         uint32 unknown (identifier?)
@@ -76,10 +77,11 @@ has the structure:
     uint32[4] unknown
     uint32 unused?
     uint32[4] unknown
-...
+```
 
 (The notation `[count] { ... }` above indicates that the sub-structure in {}'s
-repeats N times, where N is the value of `count`.)
+repeats N times, where N is the value of `count`. Typical byte values are in
+hexadecimal.)
 
 The chunk headers are little endian. All other header data is big endian.
 Samples are little endian. Track offsets are measured from the start of the
