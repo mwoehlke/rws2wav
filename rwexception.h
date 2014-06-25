@@ -7,14 +7,17 @@
 
 namespace rws
 {
-  template <typename... Args> void raise(Args...);
+  inline void format(std::ostream&) {}
   extern void raise(std::string const& error);
+  template <typename... Args> void raise(Args...);
 
   //---------------------------------------------------------------------------
-  struct expand
+  template <typename T, typename... Args>
+  void format(std::ostream& os, T const& first_arg, Args const&... args)
   {
-    template <typename... Args> expand(Args&...) {}
-  };
+    os << first_arg;
+    format(os, args...);
+  }
 
   //---------------------------------------------------------------------------
   class exception : public std::exception
@@ -36,7 +39,7 @@ template <typename... Args>
 void rws::raise(Args... args)
 {
   std::ostringstream ss;
-  expand{(ss << args)...};
+  format(ss, args...);
   raise(ss.str());
 }
 
