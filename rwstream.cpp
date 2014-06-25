@@ -56,6 +56,10 @@ rws::stream::stream(const std::string& filename)
   f.skip(0x9);
   f.read_be(m_channels);
 
+  // set track layouts
+  for (auto t : m_tracks)
+    t->set_layout(m_channels, m_sample_rate);
+
   // search for data header
   f.seek(m_header.end());
   for (;;)

@@ -2,8 +2,14 @@
 
 #include "rwfile.h"
 
+#include <sndfile.h>
+
+#include <iostream>
+
 //-----------------------------------------------------------------------------
-rws::track::track(uint32_t i) : m_id{i}
+rws::track::track(uint32_t i)
+  : m_id{i}, m_byte_count{0}, m_byte_offset{0}, m_size{0},
+    m_channels{0}, m_sample_rate{0}
 {
 }
 
@@ -60,4 +66,34 @@ void rws::track::read_data(
     // seek to next cluster
     f.seek(cluster_start + cluster_size);
   }
+}
+
+//-----------------------------------------------------------------------------
+void rws::track::set_layout(uint8_t channels, uint32_t sample_rate)
+{
+  m_channels = channels;
+  m_sample_rate = sample_rate;
+}
+
+//-----------------------------------------------------------------------------
+void rws::track::write(const std::string& filename)
+{
+  // set up format information
+  auto frames = sf_count_t(m_size / (sizeof(uint16_t) * m_channels));
+  auto sample_rate = int(m_sample_rate);
+  auto format = SF_FORMAT_WAV | SF_FORMAT_PCM_16 | SF_ENDIAN_BIG;
+  auto info = SF_INFO{frames, sample_rate, m_channels, format, 0, 0};
+
+  // open output file
+  auto os = sf_open(filename.c_str(), SFM_WRITE, &info);
+
+  // write data
+  sf_write_raw(os, m_samples.get(), m_size);
+
+  // close output file
+  sf_close(os);
+
+  // report
+  std::cout << "wrote " << m_name << " (" << frames << " frames)"
+            << " to '" << filename << "'" << std::endl;
 }

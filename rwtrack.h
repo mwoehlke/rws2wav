@@ -26,6 +26,10 @@ namespace rws
     void read_data(file&, off64_t data_start,
                    uint32_t cluster_size, uint32_t cluster_used_bytes);
 
+    void set_layout(uint8_t channels, uint32_t sample_rate);
+
+    void write(std::string const& filename);
+
   protected:
     uint32_t const m_id;
 
@@ -35,6 +39,8 @@ namespace rws
 
     std::string m_name;
 
+    uint8_t m_channels;
+    uint32_t m_sample_rate;
     std::unique_ptr<uint8_t[]> m_samples;
   };
 }

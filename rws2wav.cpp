@@ -1,9 +1,7 @@
-#include <sndfile.h>
-
-#include <cstdio>
-
 #include "rwexception.h"
 #include "rwstream.h"
+
+#include <cstdio>
 
 //-----------------------------------------------------------------------------
 void usage()
@@ -16,16 +14,26 @@ void convert(std::string const filename)
   try
   {
     auto is = rws::stream{filename};
+    auto base_name = filename;
 
-    for (auto const& track : is.tracks())
+    auto ep = base_name.rfind('.');
+    base_name = base_name.substr(0, ep);
+
+    for (auto const& t : is.tracks())
     {
-    /* for each track
-    auto format = SF_FORMAT_WAV;
-    auto info = SF_INFO{frames, rate, channels, format, 0, 0};
+      // get name for output file
+      std::ostringstream ss;
+      ss << base_name << "-tr" << t->id() << ".wav";
 
-    auto const outname = filename + ".wav";
-    auto os = sf_open(outname.c_str(), SFM_WRITE, &info);
-    */
+      // write track
+      try
+      {
+        t->write(ss.str());
+      }
+      catch (rws::exception const& e)
+      {
+        fprintf(stderr, "%s\n", e.what());
+      }
     }
   }
   catch (rws::exception const& e)

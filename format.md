@@ -84,7 +84,7 @@ repeats N times, where N is the value of `count`. Typical byte values are in
 hexadecimal.)
 
 The chunk headers are little endian. All other header data is big endian.
-Samples are little endian. Track offsets are measured from the start of the
+Samples are also big endian. Track offsets are measured from the start of the
 `audio_data` chunk (following the chunk header for the same), i.e. an offset of
 `0` refers to the first byte of the first data cluster. Track counts *include*
 unused cluster bytes.
