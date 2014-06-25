@@ -14,9 +14,9 @@ void rws::bswap(uint32_t& data)
 }
 
 //-----------------------------------------------------------------------------
-rws::file::file(const std::string& filename)
+rws::file::file(const std::string& filename, io_mode mode)
 {
-  m_handle = fopen64(filename.c_str(), "rb");
+  m_handle = fopen64(filename.c_str(), mode == io_mode::write ? "w+b" : "rb");
   if (!m_handle)
     raise("unable to open input file '", filename, "'");
 
@@ -83,4 +83,11 @@ template <> void rws::file::read(std::string& str)
     str.insert(len, buffer, sizeof(buffer));
     len += sizeof(buffer);
   }
+}
+
+//-----------------------------------------------------------------------------
+void rws::file::write(void const* data, size_t size)
+{
+  if (fwrite(data, 1, size, m_handle) != size)
+    raise("write error");
 }

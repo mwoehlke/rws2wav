@@ -3,12 +3,12 @@
 
 #include <string>
 
-#include <cstdint>
 #include <cstdio>
 
 #include <byteswap.h>
 
 #include "rwexception.h"
+#include "rwtypes.h"
 
 namespace rws
 {
@@ -19,13 +19,16 @@ namespace rws
   class file
   {
   public:
-    file(const std::string& filename);
+    file(const std::string& filename, io_mode = io_mode::read);
     ~file();
 
     template <typename T> void read(T& data);
     template <typename T> void read_be(T& data);
 
+    template <typename T> void write(T data);
+
     void read(uint8_t* buffer, size_t size);
+    void write(void const* data, size_t size);
 
     void seek(off64_t pos, int mode = SEEK_SET);
     void skip(off64_t off);
@@ -56,6 +59,12 @@ template <typename T> void rws::file::read_be(T& data)
 {
   read(data);
   bswap(data);
+}
+
+//-----------------------------------------------------------------------------
+template <typename T> void rws::file::write(T data)
+{
+  write(&data, sizeof(data));
 }
 
 //-----------------------------------------------------------------------------

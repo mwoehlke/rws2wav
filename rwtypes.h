@@ -12,6 +12,12 @@ namespace rws
     audio_data = 0x80f,
     invalid = 0xffffffff
   };
+
+  enum class io_mode
+  {
+    read,
+    write,
+  };
 }
 
 #endif

@@ -16,7 +16,7 @@ OBJECTS = \
 all: rws2wav
 
 rws2wav: $(OBJECTS)
-	$(CXX) -std=c++11 $(LDFLAGS) -lsndfile -o $@ $^
+	$(CXX) -std=c++11 $(LDFLAGS) -o $@ $^
 
 %.o: %.cpp
 	$(CXX) -std=c++11 $(CXXFLAGS) -c -o $@ $^

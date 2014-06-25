@@ -2,9 +2,9 @@
 
 #include "rwfile.h"
 
-#include <sndfile.h>
-
 #include <iostream>
+
+#include <byteswap.h>
 
 //-----------------------------------------------------------------------------
 rws::track::track(uint32_t i)
@@ -78,22 +78,35 @@ void rws::track::set_layout(uint8_t channels, uint32_t sample_rate)
 //-----------------------------------------------------------------------------
 void rws::track::write(const std::string& filename)
 {
-  // set up format information
-  auto frames = sf_count_t(m_size / (sizeof(uint16_t) * m_channels));
-  auto sample_rate = int(m_sample_rate);
-  auto format = SF_FORMAT_WAV | SF_FORMAT_PCM_16 | SF_ENDIAN_BIG;
-  auto info = SF_INFO{frames, sample_rate, m_channels, format, 0, 0};
-
   // open output file
-  auto os = sf_open(filename.c_str(), SFM_WRITE, &info);
+  auto f = file{filename, io_mode::write};
+
+  // write header
+  static auto const bits_per_sample = 16;
+  static auto const bytes_per_sample = bits_per_sample / 8;
+  f.write("RIFF\0\0\0\0WAVEfmt ", 16); // will fill in size later
+  f.write<uint32_t>(16); // format chunk size
+  f.write<uint16_t>(1); // PCM format
+  f.write<uint16_t>(m_channels);
+  f.write<uint32_t>(m_sample_rate);
+  f.write<uint32_t>(m_sample_rate * m_channels * bytes_per_sample);
+  f.write<uint16_t>(m_channels * bytes_per_sample);
+  f.write<uint16_t>(bits_per_sample);
+  f.write("data", 4);
+  f.write<uint32_t>(m_size);
 
   // write data
-  sf_write_raw(os, m_samples.get(), m_size);
+  auto const samples = reinterpret_cast<int16_t const*>(m_samples.get());
+  auto const sample_count = m_size / bytes_per_sample;
+  for (auto i = decltype(sample_count){0}; i < sample_count; ++i)
+    f.write(bswap_16(samples[i]));
 
-  // close output file
-  sf_close(os);
+  // write adjusted size
+  auto const total_size = static_cast<uint32_t>(f.pos());
+  f.seek(4);
+  f.write<uint32_t>(total_size - 8);
 
   // report
-  std::cout << "wrote " << m_name << " (" << frames << " frames)"
-            << " to '" << filename << "'" << std::endl;
+  std::cout << "wrote " << m_name << " (" << sample_count / m_channels
+            << " frames) to '" << filename << "'" << std::endl;
 }

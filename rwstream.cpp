@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------
 rws::stream::stream(const std::string& filename)
 {
-  auto f = file{filename};
+  auto f = file(filename);
   fprintf(stdout, "reading '%s'\n", filename.c_str());
 
   // read container header
