@@ -12,6 +12,7 @@
 
 namespace rws
 {
+  inline void bswap(uint8_t&) { /* no-op*/ }
   extern void bswap(uint32_t&);
 
   //---------------------------------------------------------------------------

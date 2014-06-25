@@ -48,13 +48,13 @@ rws::stream::stream(const std::string& filename)
 
   // read end of audio header
   f.skip(0x10);
-  f.read(m_cluster_size);
+  f.read_be(m_cluster_size);
   f.skip(0xc);
-  f.read(m_cluster_used_bytes);
+  f.read_be(m_cluster_used_bytes);
   f.skip<uint32_t>();
-  f.read(m_sample_rate);
+  f.read_be(m_sample_rate);
   f.skip(0x9);
-  f.read(m_channels);
+  f.read_be(m_channels);
 
   // search for data header
   f.seek(m_header.end());
