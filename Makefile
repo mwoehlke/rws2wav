@@ -10,6 +10,7 @@ OBJECTS = \
   rwexception.o \
   rwfile.o \
   rwstream.o \
+  rwtrack.o \
   rws2wav.o
 
 all: rws2wav

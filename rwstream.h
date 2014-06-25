@@ -20,7 +20,7 @@ namespace rws
     stream(std::string const& filename);
     ~stream();
 
-    inline track_list const tracks() const { return m_tracks; }
+    inline track_list tracks() const { return m_tracks; }
 
   protected:
     chunk m_header;
@@ -28,6 +28,12 @@ namespace rws
 
     uint32_t m_track_count;
     track_list m_tracks;
+
+    uint32_t m_cluster_size;
+    uint32_t m_cluster_used_bytes;
+
+    uint32_t m_sample_rate;
+    uint8_t m_channels;
   };
 }
 

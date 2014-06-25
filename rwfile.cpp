@@ -2,6 +2,8 @@
 
 #include "rwexception.h"
 
+#include <cstring>
+
 #include <byteswap.h>
 #include <sys/stat.h>
 
@@ -50,3 +52,28 @@ off64_t rws::file::pos() const
   return ftello64(m_handle);
 }
 
+//-----------------------------------------------------------------------------
+template <> void rws::file::read(std::string& str)
+{
+  char buffer[16];
+  size_t len = 0;
+
+  str.clear();
+  for(;;)
+  {
+    if (fread(buffer, 1, 16, m_handle) != 16)
+      raise("read error");
+
+    auto const end =
+      reinterpret_cast<char const*>(memchr(buffer, '\0', sizeof(buffer)));
+
+    if (end)
+    {
+      str.insert(len, buffer, static_cast<size_t>(end - buffer));
+      return;
+    }
+
+    str.insert(len, buffer, sizeof(buffer));
+    len += sizeof(buffer);
+  }
+}

@@ -36,6 +36,8 @@ namespace rws
     FILE* m_handle;
     off64_t m_size;
   };
+
+  template <> void file::read(std::string&);
 }
 
 //-----------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 #include "rwstream.h"
 
 #include "rwexception.h"
+#include "rwtrack.h"
 #include "rwtypes.h"
 
 //-----------------------------------------------------------------------------
@@ -21,16 +22,39 @@ rws::stream::stream(const std::string& filename)
     f.seek(m_header.end());
   }
 
-  // read audio header
+  // read start of audio header
   uint32_t header_size;
   f.read(header_size);
   f.skip(0x1c);
-  printf("tracks at %llx\n", f.pos());
   f.read_be(m_track_count);
   f.skip(0x2c);
 
-  // TODO remaining headers
-  printf("track count: %u\n", m_track_count);
+  std::string stream_name;
+  f.read(stream_name);
+
+  // read per-track headers
+  m_tracks.reserve(m_track_count);
+  for (uint32_t i = 0; i < m_track_count; ++i)
+  {
+    auto track = new rws::track{i};
+    track->read_location(f);
+    m_tracks.emplace_back(track);
+  }
+  for (auto t : m_tracks)
+    t->read_size(f);
+  f.skip(0x10 * m_track_count);
+  for (auto t : m_tracks)
+    t->read_name(f);
+
+  // read end of audio header
+  f.skip(0x10);
+  f.read(m_cluster_size);
+  f.skip(0xc);
+  f.read(m_cluster_used_bytes);
+  f.skip<uint32_t>();
+  f.read(m_sample_rate);
+  f.skip(0x9);
+  f.read(m_channels);
 
   // search for data header
   f.seek(m_header.end());
@@ -41,6 +65,8 @@ rws::stream::stream(const std::string& filename)
       break;
     f.seek(m_data.end());
   }
+
+  // TODO read tracks
 }
 
 //-----------------------------------------------------------------------------
