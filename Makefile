@@ -20,3 +20,6 @@ rws2wav: $(OBJECTS)
 
 %.o: %.cpp
 	$(CXX) -std=c++11 $(CXXFLAGS) -c -o $@ $^
+
+clean:
+	rm rws2wav $(OBJECTS)
