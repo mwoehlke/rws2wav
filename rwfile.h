@@ -25,6 +25,8 @@ namespace rws
     template <typename T> void read(T& data);
     template <typename T> void read_be(T& data);
 
+    void read(uint8_t* buffer, size_t size);
+
     void seek(off64_t pos, int mode = SEEK_SET);
     void skip(off64_t off);
 

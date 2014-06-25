@@ -37,5 +37,27 @@ void rws::track::read_data(
   rws::file& f, off64_t data_start,
   uint32_t cluster_size, uint32_t cluster_used_bytes)
 {
-  // TODO
+  // reserve storage
+  m_samples.reset(new uint8_t[m_size]);
+  auto buffer = m_samples.get();
+
+  // seek to start of track data
+  f.seek(data_start + m_byte_offset);
+
+  // read track data
+  uint32_t remaining = m_size;
+  while (remaining)
+  {
+    // determine amount to read for this cluster
+    auto const cluster_start = f.pos();
+    auto const to_read = std::min(remaining, cluster_used_bytes);
+
+    // read cluster
+    f.read(buffer, to_read);
+    remaining -= to_read;
+    buffer += to_read;
+
+    // seek to next cluster
+    f.seek(cluster_start + cluster_size);
+  }
 }

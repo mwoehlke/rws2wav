@@ -35,7 +35,7 @@ namespace rws
 
     std::string m_name;
 
-    std::unique_ptr<unsigned char[]> m_samples;
+    std::unique_ptr<uint8_t[]> m_samples;
   };
 }
 

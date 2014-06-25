@@ -66,7 +66,10 @@ rws::stream::stream(const std::string& filename)
     f.seek(m_data.end());
   }
 
-  // TODO read tracks
+  // read track data
+  auto const start = m_data.start();
+  for (auto t : m_tracks)
+    t->read_data(f, start, m_cluster_size, m_cluster_used_bytes);
 }
 
 //-----------------------------------------------------------------------------

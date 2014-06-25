@@ -53,6 +53,13 @@ off64_t rws::file::pos() const
 }
 
 //-----------------------------------------------------------------------------
+void rws::file::read(uint8_t* buffer, size_t size)
+{
+  if (fread(buffer, 1, size, m_handle) != size)
+    raise("read error");
+}
+
+//-----------------------------------------------------------------------------
 template <> void rws::file::read(std::string& str)
 {
   char buffer[16];
